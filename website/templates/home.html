@@ -1,0 +1,232 @@
+{% extends "base.html" %} 
+{% block title %}Home{% endblock %} 
+
+{% block content %}
+<div class="app-container">
+  <div class="notes-header">
+    <h1 class="app-title">Recent Notes</h1>
+    <div class="notes-stats">{{ user.notes|length }} total notes</div>
+  </div>
+
+  {% if user.notes|length > 0 %}
+  <div class="recent-notes">
+    <h3 class="section-title">Last 3 Notes</h3>
+    <div class="notes-grid">
+      {% for note in user.notes[-3:]|reverse %}
+      <div class="note-card">
+        <div class="note-content">
+          <p class="note-text">{{ note.data }}</p>
+          <div class="note-date">{{ note.date.strftime('%b %d, %Y %I:%M %p') }}</div>
+        </div>
+        <div class="note-actions">
+          <button class="note-action-btn delete-btn" onClick="deleteNote({{ note.id }})">
+            <i class="fa fa-trash"></i>
+          </button>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="add-note-section">
+    <h3 class="section-title">Add New Note</h3>
+    <div class="add-note-card">
+      <form method="POST" class="note-form">
+        <textarea name="note" id="note" class="note-input" placeholder="Start typing your new note..." rows="4"></textarea>
+        <button type="submit" class="submit-btn">
+          <i class="fa fa-plus"></i> Add Note
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+  .app-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .notes-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 2rem;
+  }
+
+  .app-title {
+    color: var(--text-primary);
+    font-size: 2.2rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .notes-stats {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    background: rgba(100, 108, 255, 0.1);
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+  }
+
+  .notes-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1rem;
+  }
+
+  .note-card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    height: 200px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .note-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+  }
+
+  .note-content {
+    flex-grow: 1;
+    overflow: hidden;
+  }
+
+  .note-text {
+    color: var(--text-primary);
+    margin: 0;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 6;
+    line-clamp: 6;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .note-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 1rem;
+  }
+
+  .note-action-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: all 0.2s ease;
+  }
+
+  .delete-btn:hover {
+    color: #ff6b6b;
+    transform: scale(1.1);
+  }
+
+  .add-note-card {
+    background: var(--darker-bg);
+    border: 2px dashed rgba(100, 108, 255, 0.3);
+    border-radius: 12px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    height: 200px;
+    transition: all 0.2s ease;
+  }
+
+  .add-note-card:hover {
+    border-color: var(--primary-accent);
+  }
+
+  .note-input {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    width: 100%;
+    height: 100%;
+    resize: none;
+    font-family: inherit;
+    padding: 0;
+    flex-grow: 1;
+  }
+
+  .note-input:focus {
+    outline: none;
+  }
+
+  .note-input::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
+  }
+
+  .submit-btn {
+    background: var(--primary-accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.7rem 1rem;
+    margin-left: auto;
+    margin-bottom: -50px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .submit-btn:hover {
+    background: #747bff;
+    transform: translateY(-2px);
+  }
+
+  @media (max-width: 768px) {
+    .app-container {
+      padding: 1.5rem;
+    }
+    
+    .notes-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .note-card, .add-note-card {
+      height: auto;
+      min-height: 180px;
+    }
+  }
+
+  .recent-notes {
+    margin-bottom: 3rem;
+  }
+  
+  .section-title {
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+  }
+  
+  .note-date {
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+    margin-top: 0.8rem;
+    opacity: 0.8;
+  }
+  
+  .add-note-section {
+    margin-top: 2rem;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+  }
+</style>
+{% endblock %}
